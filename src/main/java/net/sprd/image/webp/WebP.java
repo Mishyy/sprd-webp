@@ -17,26 +17,27 @@
 package net.sprd.image.webp;
 
 import com.google.webp.libwebp;
+import org.scijava.nativelib.NativeLibraryUtil;
+
 import java.awt.image.*;
 import java.io.IOException;
-import org.scijava.nativelib.NativeLibraryUtil;
 
 final class WebP {
 
     private static boolean NATIVE_LIBRARY_LOADED = false;
-
-    static synchronized void loadNativeLibrary() {
-        if (!NATIVE_LIBRARY_LOADED) {
-            NATIVE_LIBRARY_LOADED = true;
-            NativeLibraryUtil.loadNativeLibrary(WebP.class, "webp_jni");
-        }
-    }
 
     static {
         loadNativeLibrary();
     }
 
     private WebP() {
+    }
+
+    static synchronized void loadNativeLibrary() {
+        if (!NATIVE_LIBRARY_LOADED) {
+            NATIVE_LIBRARY_LOADED = true;
+            NativeLibraryUtil.loadNativeLibrary(WebP.class, "webp_jni");
+        }
     }
 
     public static byte[] encode(WebPWriteParam writeParam, RenderedImage image) throws IOException {
@@ -47,29 +48,23 @@ final class WebP {
         if (image == null) {
             throw new NullPointerException("Image may not be null");
         }
-        
+
         // The quality factor quality_factor ranges from 0 to 100 and controls the loss and quality during compression. 
         // The value 0 corresponds to low quality and small output sizes, whereas 100 is the highest quality and largest output size. 
         float quality = Math.min(100.0f, writeParam.getCompressionQuality() * 100.0f);
-        
-        boolean encodeAlpha = hasTranslucency(image);
-
-        if (encodeAlpha) {
-            
+        if (hasTranslucency(image)) {
             byte[] rgbaData = getRGBA(image);
-            if (writeParam.isLossyType()) {
-                return libwebp.WebPEncodeRGBA(rgbaData, image.getWidth(), image.getHeight(), image.getWidth() * 4, quality);
-            } else {
-                return libwebp.WebPEncodeLosslessRGBA(rgbaData, image.getWidth(), image.getHeight(), image.getWidth() * 4);
-            }
-        } else {
-            byte[] rgbData = getRGB(image);
-            if (writeParam.isLossyType()) {
-                return libwebp.WebPEncodeRGB(rgbData, image.getWidth(), image.getHeight(), image.getWidth() * 3, quality);
-            } else {
-                return libwebp.WebPEncodeLosslessRGB(rgbData, image.getWidth(), image.getHeight(), image.getWidth() * 3);
-            }
+            return writeParam.isLossyType()
+                    ? libwebp.WebPEncodeRGBA(rgbaData, image.getWidth(), image.getHeight(), image.getWidth() * 4,
+                                             quality)
+                    : libwebp.WebPEncodeLosslessRGBA(rgbaData, image.getWidth(), image.getHeight(),
+                                                     image.getWidth() * 4);
         }
+
+        byte[] rgbData = getRGB(image);
+        return writeParam.isLossyType()
+                ? libwebp.WebPEncodeRGB(rgbData, image.getWidth(), image.getHeight(), image.getWidth() * 3, quality)
+                : libwebp.WebPEncodeLosslessRGB(rgbData, image.getWidth(), image.getHeight(), image.getWidth() * 3);
     }
 
     private static boolean hasTranslucency(RenderedImage image) {
@@ -91,26 +86,22 @@ final class WebP {
         ColorModel colorModel = aRi.getColorModel();
         if (colorModel instanceof ComponentColorModel) {
             ComponentSampleModel sampleModel = (ComponentSampleModel) aRi.getSampleModel();
-            int type = sampleModel.getTransferType();
-            switch (type) {
-                case DataBuffer.TYPE_BYTE:
-                    return extractComponentRGBByte(width, height, sampleModel, ((DataBufferByte) aRi.getData().getDataBuffer()));
-                case DataBuffer.TYPE_INT:
-                    return extractComponentRGBInt(width, height, sampleModel, ((DataBufferInt) aRi.getData().getDataBuffer()));
-                default:
-                    throw new IOException("Incompatible image: " + aRi);
-            }
+            return switch (sampleModel.getTransferType()) {
+                case DataBuffer.TYPE_BYTE -> extractComponentRGBByte(width, height, sampleModel,
+                                                                     ((DataBufferByte) aRi.getData().getDataBuffer()));
+                case DataBuffer.TYPE_INT -> extractComponentRGBInt(width, height, sampleModel,
+                                                                   ((DataBufferInt) aRi.getData().getDataBuffer()));
+                default -> throw new IOException("Incompatible image: " + aRi);
+            };
         } else if (colorModel instanceof DirectColorModel) {
             SinglePixelPackedSampleModel sampleModel = (SinglePixelPackedSampleModel) aRi.getSampleModel();
-            int type = sampleModel.getTransferType();
-            if (type == DataBuffer.TYPE_INT) {
+            if (sampleModel.getTransferType() == DataBuffer.TYPE_INT) {
                 return extractDirectRGBInt(width, height, (DirectColorModel) colorModel, sampleModel,
                                            ((DataBufferInt) aRi.getData().getDataBuffer()));
             } else {
                 throw new IOException("Incompatible image: " + aRi);
             }
         }
-
         return extractGenericRGB(aRi, width, height, colorModel);
     }
 
@@ -232,25 +223,22 @@ final class WebP {
         if (colorModel instanceof ComponentColorModel) {
             ComponentSampleModel sampleModel = (ComponentSampleModel) aRi.getSampleModel();
             int type = sampleModel.getTransferType();
-            switch (type) {
-                case DataBuffer.TYPE_BYTE:
-                    return extractComponentRGBAByte(width, height, sampleModel, ((DataBufferByte) aRi.getData().getDataBuffer()));
-                case DataBuffer.TYPE_INT:
-                    return extractComponentRGBAInt(width, height, sampleModel, ((DataBufferInt) aRi.getData().getDataBuffer()));
-                default:
-                    throw new IOException("Incompatible image: " + aRi);
-            }
+            return switch (type) {
+                case DataBuffer.TYPE_BYTE -> extractComponentRGBAByte(width, height, sampleModel,
+                                                                      ((DataBufferByte) aRi.getData().getDataBuffer()));
+                case DataBuffer.TYPE_INT -> extractComponentRGBAInt(width, height, sampleModel,
+                                                                    ((DataBufferInt) aRi.getData().getDataBuffer()));
+                default -> throw new IOException("Incompatible image: " + aRi);
+            };
         } else if (colorModel instanceof DirectColorModel) {
             SinglePixelPackedSampleModel sampleModel = (SinglePixelPackedSampleModel) aRi.getSampleModel();
-            int type = sampleModel.getTransferType();
-            if (type == DataBuffer.TYPE_INT) {
+            if (sampleModel.getTransferType() == DataBuffer.TYPE_INT) {
                 return extractDirectRGBAInt(width, height, (DirectColorModel) colorModel, sampleModel,
                                             ((DataBufferInt) aRi.getData().getDataBuffer()));
             } else {
                 throw new IOException("Incompatible image: " + aRi);
             }
         }
-
         return extractGenericRGBA(aRi, width, height, colorModel);
     }
 
@@ -379,4 +367,5 @@ final class WebP {
         }
         return out;
     }
+
 }

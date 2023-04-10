@@ -1,24 +1,19 @@
 package net.sprd.image.webp;
 
 import com.google.webp.libwebp;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.scijava.nativelib.NativeLibraryUtil;
 
-import java.lang.reflect.Method;
-import java.util.Iterator;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-import org.scijava.nativelib.NativeLibraryUtil;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.lang.reflect.Method;
+import java.util.Iterator;
 
 /**
- *
  * @author ran
  */
 public class UsageExample {
@@ -48,8 +43,8 @@ public class UsageExample {
 
         String distro = fromStream(Runtime.getRuntime().exec("lsb_release -i -s").getInputStream());
         System.out.println("OS-DISTRO :" + distro);
-        
-        
+
+
         String origFileName = "src/test/resources/test.png";
         BufferedImage img = ImageIO.read(new File(origFileName));
 
@@ -104,7 +99,7 @@ public class UsageExample {
                     in.close();
                 } catch (Exception e) {
                 }
-  
+
             }
         }
         return "";

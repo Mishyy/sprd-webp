@@ -26,49 +26,53 @@ import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
+/**
+ * @author ran
+ */
 class WebPWriter extends ImageWriter {
-    
-  WebPWriter( ImageWriterSpi originatingProvider ) {
-    super( originatingProvider );
-  }
 
-  @Override
-  public ImageWriteParam getDefaultWriteParam() {
-    return new WebPWriteParam( getLocale() );
-  }
-
-  @Override
-  public IIOMetadata convertImageMetadata( IIOMetadata inData, ImageTypeSpecifier imageType, ImageWriteParam param ) {
-    return null;
-  }
-
-  @Override
-  public IIOMetadata convertStreamMetadata( IIOMetadata inData, ImageWriteParam param ) {
-    return null;
-  }
-
-  @Override
-  public IIOMetadata getDefaultImageMetadata( ImageTypeSpecifier imageType, ImageWriteParam param ) {
-    return null;
-  }
-
-  @Override
-  public IIOMetadata getDefaultStreamMetadata( ImageWriteParam param ) {
-    return null;
-  }
-
-  @Override
-  public void write( IIOMetadata streamMetadata, IIOImage image, ImageWriteParam param ) throws IOException {
-    if ( param == null ) {
-      param = getDefaultWriteParam();
+    WebPWriter(ImageWriterSpi originatingProvider) {
+        super(originatingProvider);
     }
 
-    WebPWriteParam writeParam = (WebPWriteParam) param;
+    @Override
+    public ImageWriteParam getDefaultWriteParam() {
+        return new WebPWriteParam(getLocale());
+    }
 
-    ImageOutputStream outStream = ( ImageOutputStream ) getOutput();
-    RenderedImage ri = image.getRenderedImage();
+    @Override
+    public IIOMetadata convertImageMetadata(IIOMetadata inData, ImageTypeSpecifier imageType, ImageWriteParam param) {
+        return null;
+    }
 
-    byte[] encodedData = WebP.encode(writeParam, ri);
-    outStream.write( encodedData );
-  }
+    @Override
+    public IIOMetadata convertStreamMetadata(IIOMetadata inData, ImageWriteParam param) {
+        return null;
+    }
+
+    @Override
+    public IIOMetadata getDefaultImageMetadata(ImageTypeSpecifier imageType, ImageWriteParam param) {
+        return null;
+    }
+
+    @Override
+    public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
+        return null;
+    }
+
+    @Override
+    public void write(IIOMetadata streamMetadata, IIOImage image, ImageWriteParam param) throws IOException {
+        if (param == null) {
+            param = getDefaultWriteParam();
+        }
+
+        WebPWriteParam writeParam = (WebPWriteParam) param;
+
+        ImageOutputStream outStream = (ImageOutputStream) getOutput();
+        RenderedImage ri = image.getRenderedImage();
+
+        byte[] encodedData = WebP.encode(writeParam, ri);
+        outStream.write(encodedData);
+    }
+
 }

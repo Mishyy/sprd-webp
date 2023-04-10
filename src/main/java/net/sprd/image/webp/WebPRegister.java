@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.sprd.image.webp;
 
-import java.util.Iterator;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.spi.ImageWriterSpi;
+import java.util.Iterator;
 
 /**
- *
  * @author ran
  */
 public class WebPRegister {
 
-    public static final void registerImageTypes() {
-        Iterator<ImageWriterSpi> providers = IIORegistry.getDefaultInstance().getServiceProviders(
-                javax.imageio.spi.ImageWriterSpi.class, true);
+    public static void registerImageTypes() {
+        Iterator<ImageWriterSpi> providers = IIORegistry.getDefaultInstance()
+                .getServiceProviders(javax.imageio.spi.ImageWriterSpi.class, true);
         if (providers != null) {
             boolean found = false;
-            for (; providers.hasNext();) {
+            while (providers.hasNext()) {
                 ImageWriterSpi next = providers.next();
                 if (next.getClass().getName().equals("WebPImageWriterSpi")) {
                     found = true;
@@ -44,5 +42,5 @@ public class WebPRegister {
         }
 
     }
-    
+
 }

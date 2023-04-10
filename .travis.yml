@@ -1,17 +1,17 @@
 language: java
 jdk:
-- oraclejdk8
+  - oraclejdk8
 
 before_install:
-- pip install --user codecov
+  - pip install --user codecov
 
 install:
-- mvn install:install-file -Dfile=src/main/libwebp.jar -DgroupId=com.google.webp -DartifactId=webp -Dversion=5.0.0 -Dpackaging=jar 
+  - mvn install:install-file -Dfile=src/main/libwebp.jar -DgroupId=com.google.webp -DartifactId=webp -Dversion=5.0.0 -Dpackaging=jar
 
 script: mvn clean install
 
 after_success:
-- codecov
+  - codecov
 
 deploy:
   provider: releases

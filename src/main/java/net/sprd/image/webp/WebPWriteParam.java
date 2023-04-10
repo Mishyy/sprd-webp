@@ -19,38 +19,39 @@ package net.sprd.image.webp;
 import javax.imageio.ImageWriteParam;
 import java.util.Locale;
 
+/**
+ * @author ran
+ */
 public class WebPWriteParam extends ImageWriteParam {
-    
-    public static final String 
-            LOSSLESS = "Lossless",
-            LOSSY = "Lossy";
-    
 
-  public WebPWriteParam( Locale locale ) {
-    super( locale );
-    canWriteCompressed = true;
-    compressionTypes = new String[]{LOSSY, LOSSLESS};
-    // default compression type is LOSSY
-    compressionType = compressionTypes[0]; 
-    compressionMode = MODE_EXPLICIT;
-  }
+    public static final String LOSSLESS = "Lossless";
+    public static final String LOSSY = "Lossy";
 
-  @Override
-  public float getCompressionQuality() {
-    return super.getCompressionQuality();
-  }
+    public WebPWriteParam(Locale locale) {
+        super(locale);
+        canWriteCompressed = true;
+        compressionTypes = new String[]{LOSSY, LOSSLESS};
+        // default compression type is LOSSY
+        compressionType = compressionTypes[0];
+        compressionMode = MODE_EXPLICIT;
+    }
 
-  @Override
-  public void setCompressionQuality( float quality ) {
-    super.setCompressionQuality(quality );
-  }
-  
-  public boolean isLossyType() {
-      return LOSSY.equalsIgnoreCase( super.getCompressionType());
-  }
-  
-  public boolean isLosslessType() {
-      return LOSSLESS.equalsIgnoreCase( super.getCompressionType());
-  }
+    @Override
+    public float getCompressionQuality() {
+        return super.getCompressionQuality();
+    }
+
+    @Override
+    public void setCompressionQuality(float quality) {
+        super.setCompressionQuality(quality);
+    }
+
+    public boolean isLossyType() {
+        return LOSSY.equalsIgnoreCase(super.getCompressionType());
+    }
+
+    public boolean isLosslessType() {
+        return LOSSLESS.equalsIgnoreCase(super.getCompressionType());
+    }
 
 }
