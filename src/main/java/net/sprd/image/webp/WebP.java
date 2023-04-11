@@ -17,13 +17,17 @@
 package net.sprd.image.webp;
 
 import com.google.webp.libwebp;
+import org.scijava.nativelib.DefaultJniExtractor;
 import org.scijava.nativelib.NativeLibraryUtil;
 
 import java.awt.image.*;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-final class WebP {
+public final class WebP {
 
+    private static final Logger LOGGER = Logger.getLogger(WebP.class.getName());
     private static boolean NATIVE_LIBRARY_LOADED = false;
 
     static {
@@ -33,10 +37,16 @@ final class WebP {
     private WebP() {
     }
 
-    static synchronized void loadNativeLibrary() {
+    public static synchronized void loadNativeLibrary() {
         if (!NATIVE_LIBRARY_LOADED) {
-            NATIVE_LIBRARY_LOADED = true;
-            NativeLibraryUtil.loadNativeLibrary(WebP.class, "webp_jni");
+            LOGGER.info("Loading library");
+            try {
+                NativeLibraryUtil.loadNativeLibrary(new DefaultJniExtractor(WebP.class), "webp_jni");
+                NATIVE_LIBRARY_LOADED = true;
+            } catch (final IOException e) {
+                LOGGER.log(Level.SEVERE, "Could not load native library", e);
+                throw new RuntimeException(e);
+            }
         }
     }
 

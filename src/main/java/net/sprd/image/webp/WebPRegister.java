@@ -25,22 +25,20 @@ import java.util.Iterator;
 public class WebPRegister {
 
     public static void registerImageTypes() {
-        Iterator<ImageWriterSpi> providers = IIORegistry.getDefaultInstance()
-                .getServiceProviders(javax.imageio.spi.ImageWriterSpi.class, true);
+        final Iterator<ImageWriterSpi> providers = IIORegistry.getDefaultInstance()
+                .getServiceProviders(ImageWriterSpi.class, true);
         if (providers != null) {
             boolean found = false;
             while (providers.hasNext()) {
-                ImageWriterSpi next = providers.next();
-                if (next.getClass().getName().equals("WebPImageWriterSpi")) {
+                final ImageWriterSpi next = providers.next();
+                if (next.getClass().getName().equals(WebPImageWriterSpi.class.getName())) {
                     found = true;
                 }
             }
-
             if (!found) {
                 IIORegistry.getDefaultInstance().registerServiceProvider(new WebPImageWriterSpi());
             }
         }
-
     }
 
 }

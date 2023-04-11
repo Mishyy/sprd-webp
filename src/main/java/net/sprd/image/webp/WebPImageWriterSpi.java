@@ -28,6 +28,7 @@ import java.util.Locale;
  * @author ran
  */
 public class WebPImageWriterSpi extends ImageWriterSpi {
+
     public WebPImageWriterSpi() {
         super(
                 "sprd.net",
